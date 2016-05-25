@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    
+    <title>Google Drive With Python</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Material Design Bootstrap -->
+    <link href="../static/css/mdb.min.css" rel="stylesheet">
+
+    <!-- Your custom styles (optional) -->
+    <link href="../static/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <section id="header" class="text-center">
+        <h3 class="text-primary">Google Drive API with Python</h3>
+            <nav class="navbar navbar-dark bg-primary">
+                <a class="navbar-brand" href="/">List of Files <i class="fa fa-list" aria-hidden="true"></i></a>
+                <ul class="navbar-brand">
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">New <i class="fa fa-plus" aria-hidden="true"></i></a>
+                      <ul class="dropdown-menu">
+                        <li><a href="/new?type=document"><img src="../static/img/drive_icons/docs-small.png" alt="New Document" class="responsive-img"> Document</a></li>
+                        <li><a href="/new?type=spreadsheet"><img src="../static/img/drive_icons/spreadsheets-small.png" alt="New Spreadsheet" class="responsive-img"> Spreadsheet</a></li>
+                        <li><a href="/new?type=presentation"><img src="../static/img/drive_icons/slides.png" alt="New Presentation" class="responsive-img"> Presentation</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="/new?type=folder"><img src="../static/img/drive_icons/drive-folder-small.png" alt="New Folder" > Folder</a></li>
+                        <!-- <li role="separator" class="divider"></li>
+                        <li><a href="#">One more separated link</a></li> -->
+                      </ul>
+                    </li>
+                </ul>
+               <!--  <ul class="navbar-brand navbar-right">
+                    <ol class="breadcrumb">
+                      <li><a href="/">Root</a></li>
+                      <li class="active">Library</li>
+                    </ol>
+                </ul> -->
+            </nav>
+    </section>
+
+    <section class="main">
+        <div class="row">
+            <div class="col-md-4">
+                {% for f in files %}
+                    {% if f['mimeType']=="application/vnd.google-apps.folder" and f['trashed'] == false %}
+                        <div class="col-md-12">
+                            <div class="card hoverable">
+                                <div class="card-header"><h5></h5></div>
+                                <div class="card-block">
+                                    <h6 class="card-title"><i class="fa fa-folder" aria-hidden="true"></i> | {{ f['name'] }}</h6>
+                                    <a href="/folder?id={{f['id']}}&name={{f['name']}}" class="btn btn-primary">Open</a>
+                                </div>
+                            </div>
+                            <br>
+                         </div> 
+                    {% elif f['mimeType'] != "application/vnd.google-apps.folder" and f['trashed'] == false %}
+                        <div class="col-md-12">
+                            <div class="card hoverable">
+                                <div class="card-header"><h5></h5></div>
+                                <div class="card-block">
+                                {% if f['mimeType'] == "application/vnd.google-apps.document" %}
+                                    <h6 class="card-title"><img src="../static/img/drive_icons/icons/document.png"> | {{ f['name'] }}</h6>
+                                {% elif f['mimeType'] == "application/vnd.google-apps.spreadsheet" %}
+                                    <h6 class="card-title"><img src="../static/img/drive_icons/icons/spreadsheet.png"> | {{ f['name'] }}</h6>
+                                {% elif f['mimeType'] == "application/vnd.google-apps.presentation" %}
+                                    <h6 class="card-title"><img src="../static/img/drive_icons/icons/presentation.png"> | {{ f['name'] }}</h6>
+                                {% elif f['mimeType'] == "application/vnd.google-apps.form" %}
+                                    <h6 class="card-title"><img src="../static/img/drive_icons/icons/form.png"> | {{ f['name'] }}</h6>
+                                {% elif f['mimeType'] == "application/vnd.google-apps.drawing" %}
+                                    <h6 class="card-title"><img src="../static/img/drive_icons/icons/drawing.png"> | {{ f['name'] }}</h6>
+                                {% elif f['mimeType'] == "application/vnd.google-apps.fusiontable" %}
+                                    <h6 class="card-title"><img src="../static/img/drive_icons/icons/fusiontable.png"> | {{ f['name'] }}</h6>
+                                {% else %}
+                                    {% if f['fileExtension'] != "None" and f['fileExtension'] != "" %}
+                                        {% if "../static/img/drive_icons/icons/{{ f['fileExtension'] }}.png" != "../static/img/drive_icons/icons/.png" %}
+                                            <h6 class="card-title"><img src="../static/img/drive_icons/icons/{{ f['fileExtension'] }}.png"> | {{ f['name'] }}</h6>
+                                        {% else %}
+                                            <h6 class="card-title"><img src="../static/img/drive_icons/icons/unknown.png"> | {{ f['name'] }}</h6>
+                                        {% endif %}
+                                    {% else %}
+                                        <h6 class="card-title"><img src="../static/img/drive_icons/icons/unknown.png"> | {{ f['name'] }}</h6>
+                                    {% endif %}
+                                {% endif %}
+                                {% if f['fileExtension'] %}
+                                    <a href="#" class="btn btn-primary open" fileType="other" value="{{ f['id'] }}">Open</a>
+                                {% else %}
+                                    <a href="#" class="btn btn-primary open" value="{{ f['webViewLink'] }}">Open</a>
+                                {% endif %}
+                                </div>
+                            </div>
+                            <br> 
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div id='frame-container' class="col-md-8">
+                {% if file_url != None %}
+                    <iframe class="preview_file" src="{{ file_url }}"></iframe>
+                {% else %}
+                    <div id="nopreview">
+                        <h4>Select a file for Preview</h4>
+                    </div>
+                    <iframe class="preview_file"></iframe>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- SCRIPTS -->
+    <!-- JQuery -->
+    <script type="text/javascript" src="../static/js/jquery-2.2.3.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="../static/js/tether.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="../static/js/bootstrap.min.js"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="../static/js/mdb.min.js"></script>
+    <script type="text/javascript" src="../static/js/main.js"></script>
+
+</body>
+
+</html> 
